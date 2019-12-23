@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import './cart.dart';
-import './product.dart';
 
 class OrderItem {
   final String id;
@@ -21,13 +20,16 @@ class OrderItem {
 
 class Order with ChangeNotifier {
   List<OrderItem> _orders = [];
+  final String authToken;
+
+  Order(this.authToken, this._orders);
 
   List<OrderItem> get orders {
     return [..._orders];
   }
 
   Future<void> fetchAndSetOrders() async {
-    const url = 'https://flutter-shop-8e151.firebaseio.com/orders.json';
+    final url = 'https://flutter-shop-8e151.firebaseio.com/orders.json?auth=$authToken';
     try {
       final response = await http.get(url);
       final List<OrderItem> loadedOrders = [];
@@ -65,7 +67,7 @@ class Order with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    const url = 'https://flutter-shop-8e151.firebaseio.com/orders.json';
+    final url = 'https://flutter-shop-8e151.firebaseio.com/orders.json?auth=$authToken';
     final timeStamp = DateTime.now();
     try {
       final response = await http.post(
