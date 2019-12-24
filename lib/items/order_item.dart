@@ -19,29 +19,35 @@ class _OrderItemState extends State<OrderItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text('\$${widget.order.amount}'),
-            subtitle: Text(
-                DateFormat('dd/MM/yyyy hh:mm').format(widget.order.dateTime)),
-            trailing: IconButton(
-              icon: Icon(
-                _expanded ? Icons.expand_less : Icons.expand_more,
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      height:
+          _expanded ? min(widget.order.products.length * 20.0 + 20, 100) : 160,
+      child: Card(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: Text('\$${widget.order.amount}'),
+              subtitle: Text(
+                  DateFormat('dd/MM/yyyy hh:mm').format(widget.order.dateTime)),
+              trailing: IconButton(
+                icon: Icon(
+                  _expanded ? Icons.expand_less : Icons.expand_more,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _expanded = !_expanded;
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
             ),
-          ),
-          if (_expanded)
-            Container(
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 4),
-              height: min(widget.order.products.length * 20.0 + 20, 180),
+              height: _expanded
+                  ? min(widget.order.products.length * 20.0 + 20, 180)
+                  : 0,
               child: ListView(
                 children: widget.order.products
                     .map(
@@ -63,7 +69,8 @@ class _OrderItemState extends State<OrderItem> {
                     .toList(),
               ),
             )
-        ],
+          ],
+        ),
       ),
     );
   }

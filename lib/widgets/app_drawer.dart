@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../screens/orders_screen.dart';
 import '../screens/user_products_screen.dart';
 import '../providers/auth_provider.dart';
+import '../helper/custom_route.dart';
 
 class AppDrawer extends StatefulWidget {
   @override
@@ -32,7 +33,10 @@ class _AppDrawerState extends State<AppDrawer> {
             leading: Icon(Icons.payment),
             title: Text('Payment'),
             onTap: () {
-              Navigator.of(context).pushNamed(OrdersScreen.routeName);
+              Navigator.of(context).pushReplacement(
+                CustomRoute(builder: (ctx) => OrdersScreen()),
+              );
+              // Navigator.of(context).pushNamed(OrdersScreen.routeName);
             },
           ),
           Divider(),
@@ -45,14 +49,13 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Log out'),
-            onTap: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pushReplacementNamed('/');
-              Provider.of<Auth>(context, listen: false).logout();
-            }
-          )
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Log out'),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacementNamed('/');
+                Provider.of<Auth>(context, listen: false).logout();
+              })
         ],
       ),
     );
