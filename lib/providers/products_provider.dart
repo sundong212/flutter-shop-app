@@ -10,7 +10,8 @@ class ProductsProvider with ChangeNotifier {
 
   // var _showFavoritesOnly = false;
   final String authToken;
-  ProductsProvider(this.authToken, this._products);
+  final String userId;
+  ProductsProvider(this.authToken, this.userId, this._products);
 
   List<Product> get products {
     // if (_showFavoritesOnly) {
@@ -37,12 +38,17 @@ class ProductsProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> fetchAndSetProducts() async {
-    final url = 'https://flutter-shop-8e151.firebaseio.com/products.json?auth=$authToken';
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString = filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    final url = 'https://flutter-shop-8e151.firebaseio.com/products.json?auth=$authToken&$filterString';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       if (extractedData == null) return;
+      final favUrl = 'https://flutter-shop-8e151.firebaseio.com/userFavorites/$userId.json?auth=$authToken';
+
+      final favoriteResponse = await http.get(favUrl);
+      final favoriteData = json.decode(favoriteResponse.body);
       final List<Product> loadedProducts = [];
       extractedData.forEach((id, data) => {
             loadedProducts.add(Product(
@@ -50,7 +56,7 @@ class ProductsProvider with ChangeNotifier {
                 title: data['title'],
                 description: data['description'],
                 price: data['price'],
-                isFavorite: data['isFavorite'],
+                isFavorite: favoriteData == null ? false : favoriteData[id] ?? false,
                 imageUrl: data['imageUrl']))
           });
       _products = loadedProducts;
@@ -71,7 +77,7 @@ class ProductsProvider with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
-            'isFavorite': product.isFavorite
+            'creatorId': userId,
           },
         ),
       );

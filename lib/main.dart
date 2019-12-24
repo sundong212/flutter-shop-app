@@ -11,6 +11,7 @@ import './screens/user_products_screen.dart';
 import './screens/edit_product_screen.dart';
 import './screens/auth_screen.dart';
 import './providers/auth_provider.dart';
+import './screens/splash-screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -31,6 +32,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProxyProvider<Auth, ProductsProvider>(
           builder: (ctx, auth, previewProducts) => ProductsProvider(
             auth.token,
+            auth.userId,
             previewProducts == null ? [] : previewProducts.products,
           ),
         ),
@@ -40,6 +42,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProxyProvider<Auth, Order>(
           builder: (ctx, auth, previewOrder) => Order(
             auth.token,
+            auth.userId,
             previewOrder == null ? [] : previewOrder.orders,
           ),
         )
@@ -52,7 +55,14 @@ class _MyAppState extends State<MyApp> {
             accentColor: Colors.deepOrange,
             fontFamily: 'Lato',
           ),
-          home: authData.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+          home: authData.isAuth
+              ? ProductsOverviewScreen()
+              : FutureBuilder(
+                  future: authData.tryAutoLogin(),
+                  builder: (ctx, snapshot) =>
+                      snapshot.connectionState == ConnectionState.waiting
+                          ? SplashScreen()
+                          : AuthScreen()),
           routes: {
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
             ShoppingCartScreen.routeName: (ctx) => ShoppingCartScreen(),
